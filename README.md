@@ -13,19 +13,20 @@ dynamic53 removes the requirement for the AWS-CLI to be installed and allows con
 
 ### Other requirements
 A config file with the following settings:
-**[Profile Name]
+**\[Profile Name]
 
-** domain = example.com
+**domain = example.com
 
-** record = www
+**record = www
 
-** ttl = 300
+**ttl = 300
 
-** user = YourAWSRoleKey
+**user = YourAWSRoleKey
 
-** secret = AWSSecret**
+**secret = AWSSecret
+
 
 ### Usage
 python3 dns_update.py [--profile PROFILE]
------------------------------------------
+
 PROFILE is the section in the config file. if ommited, profile is set to 'default'. Ensure there is a default section in the config file.
