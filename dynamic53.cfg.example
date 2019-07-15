@@ -1,0 +1,6 @@
+[default]
+domain = example.com
+record = www
+ttl = 300
+user = YourAWSRoleKey
+secret = AWSSeret
