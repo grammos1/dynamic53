@@ -12,18 +12,20 @@ dynamic53 removes the requirement for the AWS-CLI to be installed and allows con
 * argparse
 
 ### Other requirements
+
 A config file with the following settings:
-**\[Profile Name]
 
-**domain = example.com
+**\[Profile Name]**
 
-**record = www
+**domain = example.com**
 
-**ttl = 300
+**record = www**
 
-**user = YourAWSRoleKey
+**ttl = 300**
 
-**secret = AWSSecret
+**user = YourAWSRoleKey**
+
+**secret = AWSSecret**
 
 
 ### Usage
