@@ -7,12 +7,15 @@ import configparser
 import argparse
 import sys
 import os
+from pushover import Client
 
 domain = ""
 record = ""
 zone = ""
 profile = ""
 ttl = 0
+pushover_user=""
+pushover_token=""
 
 class AWSDynDns(object):
     def __init__(self, profile):
@@ -72,6 +75,7 @@ class AWSDynDns(object):
             for ip in response['ResourceRecordSets'][0]['ResourceRecords']:
                 if self.external_ip == ip['Value']:
                     found_flag = True
+                    print ("IP on record:" + ip['Value'] )
         else:
             raise Exception("Cannot find record set for domain: {0}".format(self.fqdn))
 
@@ -107,13 +111,19 @@ class AWSDynDns(object):
                 }
             )
             print("Status: {}".format(response['ChangeInfo']['Status']))
+            try:
+                client = Client(self.pushover_user, api_token=self.pushover_token)
+                client.send_message("IP address change detected for " + self.record + "." + self.domain, title="dynamic53")
+            except Exception:
+                raise Exception("No Pushover Credentials (or incorrect entries in config file). Notification not sent")
+
 
     def get_settings(self, section):
         try:
             pathname = os.path.abspath(os.path.dirname(sys.argv[0]))
             config = configparser.ConfigParser()
             config.read(pathname +"/dynamic53.cfg")
-            self.domain = config["default"]["domain"]
+            self.domain = config[section]["domain"]
             self.record = config[section]["record"]
             try:
                 self.ttl = int(config[section]["ttl"])
@@ -122,20 +132,24 @@ class AWSDynDns(object):
                 exit (11)
             self.user = config[section]["user"]
             self.secret = config[section]["secret"]
-
+            try:
+                self.pushover_user = config[section]["pushover_user"]
+                self.pushover_token = config[section]["pushover_token"]
+            except Exception:
+                print ("Pushover Values not found")
         except Exception:
             print("Unable to load values from the config file. Check the file exists in the same directory as the script and it has the right format and values")
             exit(10)
 
 
 if __name__ == "__main__":
+    print("Starting ...")
     parser = argparse.ArgumentParser(description="Manage a dynamic home IP address with an AWS hosted route53 domain")
-
     parser.add_argument(
         "--profile", "-p",
         default='default',
         help="Config profile, as listed in your config file. If missing I will use \'default\' ",
-        required=False
+        required=True
     )
 
     args = parser.parse_args()

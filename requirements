@@ -1,0 +1,5 @@
+python-pushover
+boto3
+congifparser
+argparse
+requests

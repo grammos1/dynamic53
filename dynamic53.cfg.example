@@ -4,3 +4,5 @@ record = www
 ttl = 300
 user = YourAWSRoleKey
 secret = AWSSeret
+pushover_user= userkey
+pushover_token= tokenkey
