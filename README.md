@@ -15,7 +15,7 @@ dynamic53 removes the requirement for the AWS-CLI to be installed and allows con
 
 A config file with the following settings:
 
-**\[Profile Name]**
+**\[PROFILE]**
 
 **domain = example.com**
 
@@ -35,5 +35,5 @@ A config file with the following settings:
 ### Usage
 python3 dns_update.py [--profile PROFILE]
 
-PROFILE is the section in the config file. if ommited, profile is set to 'default'. The Profile setting is Case Sensitive.
+PROFILE is the section in the config file. The setting is Case Sensitive.
 Pushover (https://pushover.net/) credentials are optional and if exist, then a notification will be sent
