@@ -1,5 +1,5 @@
 python-pushover
 boto3
-congifparser
+configparser
 argparse
 requests
