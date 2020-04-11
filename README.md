@@ -27,9 +27,9 @@ A config file with the following settings:
 
 **secret = AWSSecret**
 
-** pushover_user= userkey **
+**pushover_user= userkey**
 
-** pushover_token= tokenkey **
+**pushover_token= tokenkey**
 
 
 ### Usage
