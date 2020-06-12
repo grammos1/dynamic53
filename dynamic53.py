@@ -113,7 +113,7 @@ class AWSDynDns(object):
             print("Status: {}".format(response['ChangeInfo']['Status']))
             try:
                 client = Client(self.pushover_user, api_token=self.pushover_token)
-                client.send_message("IP address change detected for " + self.record + "." + self.domain, title="dynamic53")
+                client.send_message("IP address for " + self.record + "." + self.domain + " changed to " + self.external_ip, title="dynamic53")
             except Exception:
                 raise Exception("No Pushover Credentials (or incorrect entries in config file). Notification not sent")
 
