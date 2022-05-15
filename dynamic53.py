@@ -28,7 +28,7 @@ class AWSDynDns(object):
         self.hosted_zone_id = ""
         self.get_settings(profile)
         session = boto3.Session(aws_access_key_id=self.user, aws_secret_access_key=self.secret)
-        self.client = session.client('route53')
+        self.client = session.client('route53domains')
         if self.record:
             self.fqdn = "{0}.{1}".format(self.record, self.domain)
         else:
