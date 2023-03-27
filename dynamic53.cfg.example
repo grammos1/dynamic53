@@ -4,5 +4,6 @@ record = www
 ttl = 300
 user = YourAWSRoleKey
 secret = AWSSeret
+zoneID = HostedZoneID
 pushover_user= userkey
 pushover_token= tokenkey
