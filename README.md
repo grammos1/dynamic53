@@ -37,3 +37,25 @@ python3 dns_update.py [--profile PROFILE]
 
 PROFILE is the section in the config file. The setting is Case Sensitive.
 Pushover (https://pushover.net/) credentials are optional and if exist, then a notification will be sent
+
+### Docker
+Docker image can be found at https://hub.docker.com/r/teleram/dynamic53
+You need to create a settings file and mount it. Example command:
+docker run -i -t --mount type=bind,source=./settings,target=/settings  teleram/dynamic53:latest
+
+** Note, the Profile, in the settings file MUST be called WAN1, i.e.
+**\[WAN1]**
+
+**domain = example.com**
+
+**record = www**
+
+**ttl = 300**
+
+**user = YourAWSRoleKey**
+
+**secret = AWSSecret**
+
+**pushover_user= userkey**
+
+**pushover_token= tokenkey**
