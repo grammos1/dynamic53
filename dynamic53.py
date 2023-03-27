@@ -7,15 +7,17 @@ import configparser
 import argparse
 import sys
 import os
-from pushover import Client
-
+import http.client, urllib
+import urllib.request
 domain = ""
 record = ""
 zone = ""
+zoneID = ""
 profile = ""
 ttl = 0
 pushover_user=""
 pushover_token=""
+msg = ""
 
 class AWSDynDns(object):
     def __init__(self, profile):
@@ -28,7 +30,7 @@ class AWSDynDns(object):
         self.hosted_zone_id = ""
         self.get_settings(profile)
         session = boto3.Session(aws_access_key_id=self.user, aws_secret_access_key=self.secret)
-        self.client = session.client('route53domains')
+        self.client = session.client(service_name='route53', region_name="global")
         if self.record:
             self.fqdn = "{0}.{1}".format(self.record, self.domain)
         else:
@@ -45,14 +47,6 @@ class AWSDynDns(object):
         except Exception:
             raise Exception("error getting external IP")
 
-    def get_hosted_zone_id(self):
-        try:
-            self.hosted_zone_list = self.client.list_hosted_zones_by_name()['HostedZones']
-            for zone in self.hosted_zone_list:
-                if self.domain in zone['Name']:
-                    self.hosted_zone_id = zone['Id'].split('/')[2]
-        except Exception:
-            raise Exception("error getting hosted zone ID")
 
     def check_existing_record(self):
         """ Get current external IP address """
@@ -69,8 +63,6 @@ class AWSDynDns(object):
 
         if len(response['ResourceRecordSets']) == 0:
             return found_flag
-            #raise Exception("Could not find any records matching domain: {0}".format(self.domain))
-
         if self.fqdn in response['ResourceRecordSets'][0]['Name']:
             for ip in response['ResourceRecordSets'][0]['ResourceRecords']:
                 if self.external_ip == ip['Value']:
@@ -112,10 +104,19 @@ class AWSDynDns(object):
             )
             print("Status: {}".format(response['ChangeInfo']['Status']))
             try:
-                client = Client(self.pushover_user, api_token=self.pushover_token)
-                client.send_message("IP address for " + self.record + "." + self.domain + " changed to " + self.external_ip, title="dynamic53")
+                message = "IP address for " + self.record + "." + self.domain + " changed to " + self.external_ip
+                title="dynamic53"
+                conn = http.client.HTTPSConnection("api.pushover.net:443")
+                conn.request("POST", "/1/messages.json",
+                urllib.parse.urlencode({
+                "token": self.pushover_token,
+                "user": self.pushover_user,
+                "message": message,
+                }), { "Content-type": "application/x-www-form-urlencoded" })
+                conn.getresponse()
             except Exception:
-                raise Exception("No Pushover Credentials (or incorrect entries in config file). Notification not sent")
+                        debug ("ERROR: Could not send Pushover Notification")
+                        debug (str(e))
 
 
     def get_settings(self, section):
@@ -125,22 +126,24 @@ class AWSDynDns(object):
             config.read(pathname +"/dynamic53.cfg")
             self.domain = config[section]["domain"]
             self.record = config[section]["record"]
-            try:
-                self.ttl = int(config[section]["ttl"])
-            except Exception:
-                print ("ttl value in config file is not an integer")
-                exit (11)
-            self.user = config[section]["user"]
-            self.secret = config[section]["secret"]
-            try:
-                self.pushover_user = config[section]["pushover_user"]
-                self.pushover_token = config[section]["pushover_token"]
-            except Exception:
-                print ("Pushover Values not found")
         except Exception:
-            print("Unable to load values from the config file. Check the file exists in the same directory as the script and it has the right format and values")
+            print("Unable to load values from the config file ==> "+ pathname +"/dynamic53.cfg")
+            print ("Check the file exists in the same directory as the script and it has the right format and values")
             exit(10)
-
+        try:
+            self.ttl = int(config[section]["ttl"])
+        except Exception:
+            print ("ttl value in config file is not an integer")
+            exit (11)
+        self.user = config[section]["user"]
+        self.secret = config[section]["secret"]
+        self.hosted_zone_id = config[section]["zoneID"]
+        try:
+            self.pushover_user = config[section]["pushover_user"]
+            self.pushover_token = config[section]["pushover_token"]
+        except Exception:
+                print ("Pushover Values not found")
+        
 
 if __name__ == "__main__":
     print("Starting ...")
